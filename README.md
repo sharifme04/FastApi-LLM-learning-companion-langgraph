@@ -218,17 +218,4 @@ pytest
 
 ---
 
-## Why it's portfolio-worthy
-
-- **Real multi-agent system, not just chained prompts.** Three agents, explicit routing, persistent state. Built on a real production library (LangGraph), with a graceful fallback so tests don't depend on it.
-- **Production reliability stack** in one place: cost cap, soft fallback to a cheaper model, DeepEval-style CI gate, structured logs, agent traces by `trace_id`.
-- **Learning-state model is non-trivial** — confidence updates use exponential weighting (`α·old + β·new`), the recommender reads it, the responder uses it for level calibration. Connects the agents, not just stitches them.
-
-## Talking points
-
-- "I built a LangGraph state machine with three agent nodes — Responder (RAG), Assessor (quiz + grade), Recommender. A cheap rule-based classifier routes each user turn."
-- "Confidence per topic uses an EWMA: `new = 0.7·old + 0.3·quiz_score`. The recommender targets low-confidence topics. The responder uses confidence to calibrate explanation depth."
-- "Cost-driven model fallback via a Redis flag — once today's spend crosses the threshold, every call switches to Haiku. The flag has a TTL so it auto-clears."
-- "Eval framework persists 4 metric rows per run. CI fails if correctness or clarity drop below 0.7. Swappable to real DeepEval LLM judges later — same data shape."
-- "Tests stub the LLM and the embedder, use SQLite + FakeRedis. 16 tests run in 1.4 seconds and cover the agent routing, the math, and the route layer."
 # FastApi-LLM-learning-companion-langgraph
