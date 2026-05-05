@@ -11,7 +11,68 @@ This is **Project 5** — the senior-level capstone of the 5-project portfolio. 
 
 ---
 
-## The 3-agent state machine
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Backend | FastAPI + Uvicorn |
+| Agent Orchestration | LangGraph (StateGraph) + graceful fallback for tests |
+| Database | PostgreSQL + pgvector extension + asyncpg |
+| Vector DB | pgvector (embedding storage + similarity search) |
+| Cache | Redis (session state, cost threshold flags, response caching) |
+| ORM | SQLAlchemy 2.0 (async) |
+| Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
+| Re-ranking | sentence-transformers cross-encoder/ms-marco-MiniLM-L-6-v2 |
+| Document Parsing | pymupdf (fitz) |
+| LLM (Primary) | Anthropic Claude Sonnet 4 |
+| LLM (Fallback) | Anthropic Claude Haiku (cost-driven fallback) |
+| Observability | Langfuse (optional tracing + scores) |
+| Evaluation | DeepEval-style framework (4 metrics per turn with CI gates) |
+| Streaming | Server-Sent Events (SSE) for real-time chat |
+| Validation | Pydantic v2 + pydantic-settings |
+| Rate Limiting | slowapi |
+| Testing | pytest + pytest-asyncio |
+| Logging | python-json-logger (structured JSON) |
+| Containerisation | Docker Compose |
+
+## Features
+
+- ✅ **3-Agent State Machine** — Responder (RAG) + Assessor (quiz + grading) + Recommender (next topics)
+- ✅ **Intent Classification** — Rule-based router sends each message to the right agent
+- ✅ **Persistent Learning State** — Topics, confidence levels, quiz scores stored in PostgreSQL JSONB + Redis hot cache
+- ✅ **RAG Responder** — Answers user questions using uploaded materials (pgvector search + cross-encoder rerank)
+- ✅ **Quiz Assessor** — Generates comprehension questions, grades answers with rubrics, updates confidence scores
+- ✅ **Smart Recommender** — Suggests next topics based on low-confidence areas
+- ✅ **Confidence Tracking** — EWMA (exponential weighted moving average) for per-topic confidence: `0.7 × old + 0.3 × quiz_score`
+- ✅ **Cost-Driven Fallback** — Redis flag triggers Haiku (cheaper) after daily spend crosses threshold
+- ✅ **Haiku Fallback** — Automatic switch to cheaper model when cost limit approached, auto-clears after 24h
+- ✅ **DeepEval Eval Framework** — 4 metrics (correctness, clarity, citation_quality, personalisation) per turn, CI gates on thresholds
+- ✅ **SSE Streaming** — Real-time chat responses sent token-by-token to browser
+- ✅ **Session Persistence** — Multi-turn conversations with full learning state recovery
+- ✅ **Structured Logging** — JSON logs with request_id, agent action, trace_id, tokens, cost
+- ✅ **Health Checks** — Verify DB + pgvector + Redis + Langfuse connectivity
+- ✅ **Analytics Dashboard** — Per-session progress, learning state, cost breakdown, eval scores
+
+## API Endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/health` | Health check (DB + pgvector + Redis + Langfuse) |
+| POST | `/sessions` | Create a new learning session |
+| GET | `/sessions/{id}` | Get session summary + learning_state |
+| SSE | `/sessions/{id}/message` | Stream chat response (agent processes message) |
+| POST | `/sessions/{id}/message` | Send message (Responder/Assessor/Recommender routes it) |
+| GET | `/sessions/{id}/quiz` | List quiz questions for the session |
+| POST | `/sessions/{id}/quiz/{q_id}/answer` | Submit quiz answer; updates confidence |
+| GET | `/sessions/{id}/progress` | Learning progress dashboard (topics, confidence, time spent) |
+| POST | `/documents/upload` | Upload learning material (PDF) |
+| GET | `/documents` | List materials |
+| DELETE | `/documents/{id}` | Delete material (cascade delete chunks) |
+| GET | `/analytics/summary` | Global analytics (sessions, materials, costs) |
+| GET | `/evals/report` | DeepEval metrics + CI gate status |
+| POST | `/evals/run` | Trigger eval over golden dataset |
+
+---
 
 ```
                     User message
