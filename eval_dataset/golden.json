@@ -1,0 +1,17 @@
+[
+  {
+    "question": "Explain backpropagation simply.",
+    "ideal_answer": "Backpropagation is the algorithm used to train neural networks. It computes gradients of the loss with respect to each weight by applying the chain rule from the output layer back to the input.",
+    "learning_level": "beginner"
+  },
+  {
+    "question": "Quiz me on linear algebra basics.",
+    "ideal_answer": "A quiz question asking the learner to define eigenvalues / dot product / matrix multiplication.",
+    "learning_level": "beginner"
+  },
+  {
+    "question": "What should I study next?",
+    "ideal_answer": "A recommendation pointing at the topic with the lowest current confidence.",
+    "learning_level": "intermediate"
+  }
+]

@@ -1,0 +1,29 @@
+[project]
+name = "learning-companion-langgraph"
+version = "1.0.0"
+description = "Personal AI learning companion: LangGraph multi-agent state machine, persistent learning state, eval-gated CI"
+requires-python = ">=3.10"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["redis.*", "slowapi.*", "pythonjsonlogger.*", "sentence_transformers.*", "fitz.*", "pgvector.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
